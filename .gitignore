@@ -1,0 +1,9 @@
+.idea
+package-lock.json
+build
+*.pyc
+*.pyc
+*.wav
+flaskMiddleWare/app/__pycache__/*
+*/venv/*
+*.json

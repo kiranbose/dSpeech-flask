@@ -1,0 +1,72 @@
+Method 1:
+
+1. Install Python
+	if environment variables are not set, set the path in user variables
+	- C:\Users\kibose\AppData\Local\Programs\Python\Python36\
+	- C:\Users\kibose\AppData\Local\Programs\Python\Python36\scripts
+	python36 folderName will differ for systems
+	Download the d-speech-6ef072e889ea.json file shared by email and paste it in flaskmiddleware folder
+
+2. INSTALL MONGODB
+https://www.mongodb.com/download-center?jmp=nav#enterprise
+Configure Database and create collections. Start mongodb server from mongodbCompass
+
+3. right click "initialize.ps1" and select run with powershell
+4. Important:
+	Find ffmpeg folder in the project.
+	Copy it to c drive or any place or keep it there.
+	Go to ffmpeb/bin folder
+	Add that folder path to system environment variables.
+	Make sure it is added in the environment by going to cmd and type "ffmpeg"
+	Restart the system (Updated from : Sep 3, 2018)
+4. Open cmd in flaskMiddleWareFolder: "flask run"
+
+
+
+Method 2:
+Steps to run the server
+
+1. Install Python
+	if environment variables are not set, set the path in user variables
+	- C:\Users\kibose\AppData\Local\Programs\Python\Python36\
+	- C:\Users\kibose\AppData\Local\Programs\Python\Python36\scripts
+
+	python36 folderName will differ for systems
+
+2. Install flask [ command = "pip install flask" ]
+3. Install PyMongo. Client to connect to mongodb (command = "pip install Flask-PyMongo")
+4. Open cmd -> navigate to flaskMiddleWare folder and run,
+      - set FLASK_APP=flaskMiddleWare.py
+5. Run the server by the below command
+	- flask run
+	OR
+	- python -m flask run
+For debugging and watching changes , 
+      set FLASK_DEBUG=true
+
+6. call service by pointing to 127.0.0.1:5000 in local machine and call 
+	127.0.0.1:5000/upload POST method with the file
+
+INSTALL MONGODB
+https://www.mongodb.com/download-center?jmp=nav#enterprise
+Configure Database and create collections
+
+
+
+
+NOTES:
+SETTING UP GOOGLE CLOUD ACCOUNT (Not needed- Just for notes) 
+
+	https://cloud.google.com/docs/authentication/getting-started
+	Download json with credentials after creating a service account
+
+	Go to cmd and 
+		set GOOGLE_APPLICATION_CREDENTIALS=[PATH]
+
+
+
+
+
+TO-Do
+1. Loudness calculation
+2. correct power plotting of recordings
