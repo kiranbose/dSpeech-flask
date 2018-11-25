@@ -1,5 +1,3 @@
-from typing import Any
-
 from app import app, mongo, auth, retrieveData, exceptionHandler
 import os
 from flask import Flask, flash, request, redirect, url_for, abort, jsonify, session, g
