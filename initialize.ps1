@@ -12,8 +12,8 @@ sudo pip install eventlet
 sudo pip install scipy
 sudo pip install matplotlib
 
-sudo set FLASK_APP=flaskMiddleWare.py
-sudo set FLASK_DEBUG=true
+export FLASK_APP=flaskMiddleWare.py
+export FLASK_DEBUG=true
 
 $dir = [string](Get-Location) + "\external_modules\libav-x86\usr\bin\"
 $Env:Path = $Env:Path + ";$dir"

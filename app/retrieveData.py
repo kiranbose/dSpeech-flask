@@ -1,4 +1,4 @@
-from app import app, routes, transcribe
+from app import app, routesHandler, transcribe
 import os
 from flask import Flask, flash, request, redirect, url_for, abort, jsonify
 from werkzeug.utils import secure_filename
@@ -15,13 +15,13 @@ def prepareResponse(data):
     return json_util.dumps(res)
 
 def retrieveMyRecordings(email):
-    data = routes.recordingsCollection.find({"email": email})
-    if routes.recordingsCollection.count() == 0:
+    data = routesHandler.recordingsCollection.find({"email": email})
+    if routesHandler.recordingsCollection.count() == 0:
         data = "no data"
     return prepareResponse(data)
 
 def retrieveDemoRecordings():
-    data = routes.recordingsCollection.find({"user": "systemuser"})
-    if routes.recordingsCollection.count() == 0:
+    data = routesHandler.recordingsCollection.find({"user": "systemuser"})
+    if routesHandler.recordingsCollection.count() == 0:
         data = "no data"
     return prepareResponse(data)

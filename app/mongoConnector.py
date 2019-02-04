@@ -1,4 +1,4 @@
-from app import app, routes, transcribe, threads, auth
+from app import app, routesHandler, transcribe, threads, auth
 import os
 from flask import Flask, flash, request, redirect, url_for, abort, jsonify
 from werkzeug.utils import secure_filename
@@ -18,16 +18,16 @@ def prepareResponse(data):
 
 
 def retrieve(email):
-    data = routes.recordingsCollection.find()
-    if routes.recordingsCollection.count() == 0:
+    data = routesHandler.recordingsCollection.find()
+    if routesHandler.recordingsCollection.count() == 0:
         data = []
     return prepareResponse(data)
 
 
 @app.route('/insert', methods=['POST'])
 def insert():
-    newCollectionId = routes.recordingsCollection.insert_one(request.json)
-    newData = routes.recordingsCollection.find_one(
+    newCollectionId = routesHandler.recordingsCollection.insert_one(request.json)
+    newData = routesHandler.recordingsCollection.find_one(
         {'_id': newCollectionId.inserted_id})
     return prepareResponse(newData)
 
@@ -69,17 +69,17 @@ def pushToDatabase(fileName, email, userPermission):
         'time': datetime.now().strftime("%H:%M:%S"),
         'ISOdate': datetime.strptime(dateTime, "%Y-%m-%dT%H:%M:%S.000Z"),
         'type': 'audio/wav',
-        'user': routes.usersCollection.find_one({'email': email}),
+        'user': routesHandler.usersCollection.find_one({'email': email}),
         'permission': userPermission
     }
-    newCollectionId = routes.recordingsCollection.insert_one(obj)
-    newData = routes.recordingsCollection.find_one(
+    newCollectionId = routesHandler.recordingsCollection.insert_one(obj)
+    newData = routesHandler.recordingsCollection.find_one(
         {'_id': newCollectionId.inserted_id})
     return prepareResponse(newData)
 
 
 def existInDatabase(fileName):
-    data = routes.recordingsCollection.find({'fileName': fileName})
+    data = routesHandler.recordingsCollection.find({'fileName': fileName})
     return data and data.count() > 0
 
 # if __name__ == 'app.auth':
@@ -104,7 +104,7 @@ def getMetaData():
                     'as': 'recordingsWithPowerData'
                 }
             }
-    userRecordingsWithPower = routes.recordingsCollection.aggregate([obj])
+    userRecordingsWithPower = routesHandler.recordingsCollection.aggregate([obj])
     uRecords = []
     sRecords = []
     for obj in userRecordingsWithPower:
@@ -113,7 +113,7 @@ def getMetaData():
         if (obj['permission'] == 'administrator'):
             sRecords.append(obj)
 
-    latestComparison = routes.comparisonCollection.find({'user': user})
+    latestComparison = routesHandler.comparisonCollection.find({'user': user})
     metaData = {
         'userRecordings': uRecords,
         'sampleRecordings': sRecords,
@@ -123,11 +123,11 @@ def getMetaData():
 
 
 def compareSpeechFiles(fileName1, fileName2):
-    record1 = routes.recordingsCollection.find_one(
+    record1 = routesHandler.recordingsCollection.find_one(
         {'stereoFilePath': fileName1})
-    record2 = routes.recordingsCollection.find_one(
+    record2 = routesHandler.recordingsCollection.find_one(
         {'stereoFilePath': fileName2})
-    found = routes.comparisonCollection.find_one(
+    found = routesHandler.comparisonCollection.find_one(
         {'file1': record1['_id'], 'file2': record2['_id']})
     if found:
         return found
@@ -137,7 +137,7 @@ def compareSpeechFiles(fileName1, fileName2):
         compareThread.run()
         targetPath = (fileName1.split(
             '.')[0] + '+' + record2['fileName']).split('.')[0] + '.png'
-        collection = routes.comparisonCollection
+        collection = routesHandler.comparisonCollection
         newItem = collection.insert_one({
             'graphPath': targetPath,
             'file1': record1['_id'],

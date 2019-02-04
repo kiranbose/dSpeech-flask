@@ -1,5 +1,5 @@
 from flask import Flask, session, request, redirect, url_for
-from app import app, mongoConnector, routes, exceptionHandler
+from app import app, mongoConnector, routesHandler, exceptionHandler
 from pymongo import MongoClient
 from datetime import timedelta, datetime
 
