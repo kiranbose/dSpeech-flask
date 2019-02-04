@@ -72,11 +72,11 @@ def upload_file():
         if file.filename == '':
             flash('No file part')
             return exceptionHandler.InvalidUsage('Invalid Recording', status_code=420)
-        if file and allowed_file(file.filename) and not mongo.existInDatabase(file.filename):
+        if file and allowed_file(file.filename) and not mongoConnector.existInDatabase(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            response = mongo.pushToDatabase(filename, user['email'], user['permission'])
-            return mongo.prepareResponse(response)
+            response = mongoConnector.pushToDatabase(filename, user['email'], user['permission'])
+            return mongoConnector.prepareResponse(response)
     return '''
     <!doctype html>
     <title>Upload new File</title>
@@ -106,7 +106,7 @@ adminObj = {
 def getFileData():
     fileName1 = request.json['fileName1']
     fileName2 = request.json['fileName2']
-    compareObj = mongo.compareSpeechFiles(fileName1, fileName2)
+    compareObj = mongoConnector.compareSpeechFiles(fileName1, fileName2)
     fileName = compareObj['graphPath'].split('\\')[-1]
     return json_util.dumps({
         'graphAbsolutePath': compareObj['graphPath'],
@@ -119,7 +119,7 @@ def getFileData():
 def getUserAudioFiles():
     user = auth.getLoggedInUser(request.headers['Authorization'])
     print(user['email'])
-    return mongo.retrieve(user['email'])
+    return mongoConnector.retrieve(user['email'])
 
 @app.route('/getDemoUserAudioFiles', methods=['GET', 'POST'])
 def getDemoUserAudioFiles():

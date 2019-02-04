@@ -30,7 +30,7 @@ def login():
                 'expiry': (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
             })
             response = { 'email': login_user['email'], 'firstName': login_user['firstName'], 'token': token, 'permission': login_user['permission'] }
-            return mongo.prepareResponse(response)
+            return mongoConnector.prepareResponse(response)
     raise exceptionHandler.InvalidUsage('Invalid email/password combination', status_code=420)
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -54,7 +54,7 @@ def register():
                 'permission': 'guest'
                 })
             newUser = usersCollection.find({'email' : request.json['email']}, {'password': 0})
-            return mongo.prepareResponse(newUser)
+            return mongoConnector.prepareResponse(newUser)
         else:
             raise exceptionHandler.InvalidUsage('User already exists', status_code=420)
 
@@ -64,7 +64,7 @@ def users():
     if request.method == 'GET':
         existing_users = usersCollection.find({'permission' : 'guest'}, {'password': 0})
         if existing_users:
-            return mongo.prepareResponse(existing_users)
+            return mongoConnector.prepareResponse(existing_users)
         else:
             raise exceptionHandler.InvalidUsage('No Users', status_code=420)
 
