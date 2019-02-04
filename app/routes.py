@@ -1,4 +1,4 @@
-from app import app, mongo, auth, retrieveData, exceptionHandler
+from app import app, mongoConnector, auth, retrieveData, exceptionHandler
 import os
 from flask import Flask, flash, request, redirect, url_for, abort, jsonify, session, g
 from werkzeug.utils import secure_filename
