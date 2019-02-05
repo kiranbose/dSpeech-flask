@@ -2,9 +2,10 @@ from flask import Flask, session, request, redirect, url_for
 from app import app, mongoConnector, routesHandler, exceptionHandler
 from pymongo import MongoClient
 from datetime import timedelta, datetime
+from os import urandom
 
 import bcrypt
-import os, secrets
+import os
 
 # ********************************************
 # User Authentication Protocols
@@ -22,7 +23,7 @@ def login():
     login_user = usersCollection.find_one({'email' : request.json['email']})
     if login_user:
         if bcrypt.checkpw(request.json['password'].encode('utf-8'), login_user['password']):
-            token = secrets.token_hex(20)
+            token = urandom(16).hex()
             tokensCollection.delete_one({ 'email' : request.json['email']})
             tokensCollection.insert({
                 'token': token,
