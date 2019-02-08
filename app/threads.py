@@ -1,7 +1,7 @@
-
 # [START import_libraries]
 import argparse
 import io, os
+
 from google.cloud import speech
 from google.cloud.speech import enums
 from google.cloud.speech import types
@@ -11,6 +11,9 @@ from matplotlib import pyplot as plt
 import numpy as np
 from threading import Thread
 from pymongo import MongoClient
+from app import uploader
+
+from six.moves.urllib.request import urlopen
 
 client = MongoClient()
 db = client.speechDatabase
@@ -26,15 +29,16 @@ AudioSegment.ffmpeg = FFMPEG_PATH
 AudioSegment.ffprobe = FFPROBE
 
 class GraphPlotterThread(Thread):
-    def __init__(self, fileName):
+    def __init__(self, fileName, gcs_uri):
         ''' Constructor. '''
  
         Thread.__init__(self)
         self.fileName = fileName
+        self.gcs_uri = gcs_uri
  
  
     def run(self):
-        samplerate, data = wavfile.read(self.fileName)
+        samplerate, data = wavfile.read('./' + self.fileName)
         # Make the plot
         power = 20*np.log10(np.abs(np.fft.rfft(data[:])))
         frequencies = np.abs(np.linspace(0, samplerate/2.0, len(power)))
@@ -54,28 +58,46 @@ class GraphPlotterThread(Thread):
         ax.legend()
         # You can set the format by changing the extension
         # like .pdf, .svg, .eps
-        plt.savefig(self.fileName.split('.')[0] + '_plot.png', dpi=100)
+        path = self.fileName.split('.')[0] + '_plot.png'
+        plt.savefig(path, dpi=100)
+
+        with io.open(path, 'rb') as plot_file:
+            content = plot_file.read()
+            plotUrl = uploader.upload_file(content, path, 'image/png')
+            uploader.deleteFromLocal('./' + path)
+
+
         # plt.show()
         pfCollection.insert_one({
-            'stereoFilePath': self.fileName,
+            'gcsFileUrl': self.gcs_uri,
             'avgPower': np.average(power),
             'avgFrequency': np.average(frequencies),
-            'sampleRate': samplerate
+            'sampleRate': samplerate,
+            'plotUrl': plotUrl
         })
 
 
 class CompareGraphGenerator(Thread):
-    def __init__(self, record1, record2):
+    def __init__(self, record1, record2, targetFileName):
         ''' Constructor. '''
  
         Thread.__init__(self)
-        self.fileName1 = record1['stereoFilePath']
-        self.fileName2 = record2['stereoFilePath']
-        self.targeFilePath = self.fileName1.split('.')[0] + '+' + record2['fileName'].split('.')[0]
+        self.fileName1 = record1['gcsFileUrl']
+        self.fileName2 = record2['gcsFileUrl']
+        self.targetFileName = targetFileName
  
     def run(self):
-        samplerate1, data1 = wavfile.read(self.fileName1)
-        samplerate2, data2 = wavfile.read(self.fileName2)
+        
+        file1 = urlopen(self.fileName1)
+        compareFile1 = open('./compareFile1.wav', 'wb')
+        compareFile1.write(file1.read())
+        samplerate1, data1 = wavfile.read('./compareFile1.wav')
+
+        file2 = urlopen(self.fileName2)
+        compareFile2 = open('./compareFile2.wav', 'wb')
+        compareFile2.write(file2.read())        
+        samplerate2, data2 = wavfile.read('./compareFile1.wav')
+
         # Make the plot
         
         power1 = 20*np.log10(np.abs(np.fft.rfft(data1[:])))
@@ -99,5 +121,12 @@ class CompareGraphGenerator(Thread):
         ax.legend()
         # You can set the format by changing the extension
         # like .pdf, .svg, .eps
-        plt.savefig(self.targeFilePath + '.png', dpi=100)
+        plt.savefig('./' + self.targetFileName, dpi=100)
+        with io.open('./' + self.targetFileName, 'rb') as audio_file:
+            content = audio_file.read()
+            uploader.upload_file(content, self.targetFileName, 'image/png')
+            uploader.deleteFromLocal('./' + self.targetFileName)
+            
+        uploader.deleteFromLocal('./' + self.fileName1)
+        uploader.deleteFromLocal('./' + self.fileName2)
         # plt.show()

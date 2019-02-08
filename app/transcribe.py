@@ -33,7 +33,7 @@ from scipy.io import wavfile
 from matplotlib import pyplot as plt
 import numpy as np
 from threading import Thread
-from app import threads
+from app import threads, uploader
 
 # [END import_libraries]
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "https://00e9e64bac4ef41886e0c211906cd70165e83390a355500be4-apidata.googleusercontent.com/download/storage/v1/b/dspeech-deploy.appspot.com/o/dspeechRamesh-b2ddeb411159.json?qk=AD5uMEt7gV2O6PgynU16YElF_I09kZaUA1nU2MNF1sfYpKRrOkJs0_Gl8CvBTUA5j06H1kRKUjW4SE_3B0ZKPJKsI_xoVtEL3lnQga708tQi0YkkyuUqNd2noz4l7-Qb9U6Cv2ftSi-mrPfvJ81AjrzJXEhUk-0q_rsudYKPNbazYKwIkiw2UOf0aH0bCdi0hVB0zPsdPxIRMxaXS3B3VtJJ-Kf4NFuGBTy1bv1Iw9ZChIfZtMsbRC_MTpaoBteJbzQZLort9crsoa2GWMZBlXbaEUJxYHMcUhvN49mXYrjSLrSKLeSCoj3txUB32ihGqBiwXf0WSMP86Cp0n3YsMLnyTSvuFvaEhi-trypjIpZFYx5inGdcHihRy4_fFoAvjMD-KLU4rcjHJg-gG0PWaJui64ko9dHopB_jYH2JUW6iWaAFRZCIoR66WGLeyfcLMIq1xSaL5JjFgsqLGKMXlPa2m0sDHHnMmvu5Sla7xaWO6zibBOpOTk7N51_ETDVOsgTJcvAfNj-ZcRE-YhrcTHI0VOV2AiQoTwb3C-97Y_vk0QYNoOgy-Sm1s-wBzUhmPhz8BERIZKF-I_9lfzBY8dpZ3masn21wLf7m7h47O4lnCMQn8NQ4krLxKQEc35PWc5KXGonwrS06K81hVHqRWTNwTYDrq3eE6bNNLVvww1wXcdVBt-BSvKKk5_tgebV7Gnkq3Fmo_dGbLEE5Pm1al0Gx85eUvUVnemgKExoTt0E8Lw5cG8ZR9QWbR2SDcFhJpeU089-vQryKhxASKeQP6phqM3yjq2uO65pVzoK8b4qZERkdCNODTog"
@@ -47,15 +47,14 @@ AudioSegment.ffprobe = FFPROBE
 
 
 # [START def_transcribe_file]
-def transcribe_file(speech_file):
+def transcribe_file(fileName):
     """Convert given audio file to single channel."""
-    monoFileName = speech_file.split('.')[0] + '__mono.wav'
-    sound = AudioSegment.from_file(speech_file)
+    monoFileName = uploader._safe_filename('mono.wav')
+    sound = AudioSegment.from_file('./' + fileName)
     sound = sound.set_channels(1)
     sound = sound.set_sample_width(2)
     duration_in_milliseconds = len(sound)
     sound.export(monoFileName, format='wav')
-    
     """Transcribe the given audio file."""
     client = speech.SpeechClient()
 
@@ -63,6 +62,8 @@ def transcribe_file(speech_file):
     # [START migration_audio_config_file]
     with io.open(monoFileName, 'rb') as audio_file:
         content = audio_file.read()
+        gcs_uri = uploader.upload_file(content, monoFileName, 'audio/wav')
+        plotGraph(monoFileName, gcs_uri)
 
     audio = types.cloud_speech_pb2.RecognitionAudio(content=content)
     config = types.cloud_speech_pb2.RecognitionConfig(
@@ -82,7 +83,7 @@ def transcribe_file(speech_file):
         if(len(result.alternatives) > 0):
             text += ' '
     # [END migration_sync_response]
-    return [duration_in_milliseconds, text]
+    return [duration_in_milliseconds, text, gcs_uri]
 # [END def_transcribe_file]
 
 
@@ -111,11 +112,17 @@ def transcribe_gcs(gcs_uri):
 # [END def_transcribe_gcs]
 
 
-def encodeAndSaveWAVFile(speech_file):
-    stereoFilePath = speech_file.split('.')[0] + '.wav'
-    sound = AudioSegment.from_file(speech_file)
-    sound = sound.set_channels(1)
-    sound.export(stereoFilePath, format='wav')
-    newThread = threads.GraphPlotterThread(speech_file)
+# def encodeAndSaveWAVFile(speech_file):
+#     gcsFileUrl = speech_file.split('.')[0] + '.wav'
+#     sound = AudioSegment.from_file(speech_file)
+#     sound = sound.set_channels(1)
+#     sound.export(gcsFileUrl, format='wav')
+#     newThread = threads.GraphPlotterThread(speech_file)
+#     newThread.setName('plotter')
+#     newThread.run()
+
+
+def plotGraph(fileName, gcs_uri):
+    newThread = threads.GraphPlotterThread(fileName, gcs_uri)
     newThread.setName('plotter')
     newThread.run()

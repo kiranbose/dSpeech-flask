@@ -33,33 +33,31 @@ def insert():
 
 
 def pushToDatabase(fileName, email, userPermission):
-    absolutePath = os.path.abspath(os.path.join(
-        app.config['UPLOAD_FOLDER'], fileName))
+    # absolutePath = os.path.abspath(os.path.join(
+    #     app.config['UPLOAD_FOLDER'], fileName))
 
     # Remove Commenting of the below lines once google cloud api is up and running
     # and remove lines temp (duration and text)
-    response = transcribe.transcribe_file(absolutePath)
+    response = transcribe.transcribe_file(fileName)
     duration = response[0]
     text = response[1]
-
+    gcs_uri = response[2]
     # temp
     # duration = 10
     # text = 'test test'
     # temp
 
     # uses ffmpeg to encode and save audio files to proper wave format
-    transcribe.encodeAndSaveWAVFile(absolutePath)
+    # transcribe.encodeAndSaveWAVFile(fileUrl)
 
-    monoFilePath = fileName.split('.')[0] + '__mono.wav'
-    graphPath = fileName.split('.')[0] + '_plot.png'
-    monoAbsolutePath = os.path.abspath(os.path.join(
-        app.config['UPLOAD_FOLDER'], monoFilePath))
+    # monoFilePath = fileName.split('.')[0] + '__mono.wav'
+    # graphPath = fileName.split('.')[0] + '_plot.png'
+    # monoAbsolutePath = os.path.abspath(os.path.join(app.config['UPLOAD_FOLDER'], monoFilePath))
     dateTime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000Z")
     obj = {
         'fileName': fileName,
-        'stereoFilePath': absolutePath,
-        'monoFilePath': monoAbsolutePath,
-        'graphPath': graphPath,
+        # 'gcsFileUrl': absolutePath,
+        'gcsFileUrl': gcs_uri,
         'duration_milliseconds': duration,
         'text': text,
         'wordCount': len(text.split()),
@@ -99,8 +97,8 @@ def getMetaData():
             '$lookup':
                 {
                     'from': 'powerFrequency',
-                    'localField': 'stereoFilePath',
-                    'foreignField': 'stereoFilePath',
+                    'localField': 'gcsFileUrl',
+                    'foreignField': 'gcsFileUrl',
                     'as': 'recordingsWithPowerData'
                 }
             }
@@ -124,27 +122,28 @@ def getMetaData():
 
 def compareSpeechFiles(fileName1, fileName2):
     record1 = routesHandler.recordingsCollection.find_one(
-        {'stereoFilePath': fileName1})
+        {'gcsFileUrl': fileName1})
     record2 = routesHandler.recordingsCollection.find_one(
-        {'stereoFilePath': fileName2})
+        {'gcsFileUrl': fileName2})
     found = routesHandler.comparisonCollection.find_one(
         {'file1': record1['_id'], 'file2': record2['_id']})
     if found:
         return found
     else:
-        compareThread = threads.CompareGraphGenerator(record1, record2)
+        targetFileName = fileName1.split('/')[-1].split('.')[0] + '+' + fileName2.split('/')[-1].split('.')[0] + '.png'
+        compareThread = threads.CompareGraphGenerator(record1, record2, targetFileName)
         compareThread.setName('comparing')
         compareThread.run()
-        targetPath = (fileName1.split(
-            '.')[0] + '+' + record2['fileName']).split('.')[0] + '.png'
         collection = routesHandler.comparisonCollection
         newItem = collection.insert_one({
-            'graphPath': targetPath,
+            'plotUrl': 'https://storage.googleapis.com/dspeech/' + targetFileName,
             'file1': record1['_id'],
             'file2': record2['_id'],
             'user': record2['user'],
             'userText': record1['text'],
-            'sampleText': record2['text']
+            'sampleText': record2['text'],
+            'fileName': targetFileName
         })
+        response = collection.find_one({'_id' : newItem.inserted_id})
         # compareThread.join()
-        return newItem
+        return response

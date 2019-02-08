@@ -12,6 +12,10 @@ sudo pip3 install eventlet
 sudo pip3 install scipy
 sudo pip3 install matplotlib
 
+sudo pip3 install google-cloud-storage
+sudo pip3 install Werkzeug
+
+
 export FLASK_APP=flaskMiddleWare.py
 export FLASK_DEBUG=true
 

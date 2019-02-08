@@ -12,6 +12,9 @@ pip install eventlet
 pip install scipy
 pip install matplotlib
 
+pip install google-cloud-storage
+pip install Werkzeug
+
 export FLASK_APP=flaskMiddleWare.py
 export FLASK_DEBUG=true
 

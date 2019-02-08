@@ -1,4 +1,4 @@
-from app import app, auth, mongoConnector, retrieveData, exceptionHandler
+from app import app, auth, mongoConnector, retrieveData, exceptionHandler, uploader
 import os
 from flask import Flask, flash, request, redirect, url_for, abort, jsonify, session, g
 from werkzeug.utils import secure_filename
@@ -20,7 +20,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 client = MongoClient()
 folderName = 'uploads'
-UPLOAD_FOLDER = 'C:/codebase/ReactFest/boilerPlate/d-speech/src/assets/' + folderName
+UPLOAD_FOLDER = './'
 ALLOWED_EXTENSIONS = set(['wav'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = client.speechDatabase
@@ -66,15 +66,15 @@ def upload_file():
         #         ## end snippet
         user = auth.getLoggedInUser(request.headers['Authorization'])
         # check if the post request has the file part
-        file = request.files['file']
+        file = request.files.get('file')
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
             flash('No file part')
             return exceptionHandler.InvalidUsage('Invalid Recording', status_code=420)
         if file and allowed_file(file.filename) and not mongoConnector.existInDatabase(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            filename = uploader._safe_filename(file.filename)
+            file.save('./' + filename)
             response = mongoConnector.pushToDatabase(filename, user['email'], user['permission'])
             return mongoConnector.prepareResponse(response)
     return '''
@@ -107,10 +107,9 @@ def getFileData():
     fileName1 = request.json['fileName1']
     fileName2 = request.json['fileName2']
     compareObj = mongoConnector.compareSpeechFiles(fileName1, fileName2)
-    fileName = compareObj['graphPath'].split('\\')[-1]
     return json_util.dumps({
-        'graphAbsolutePath': compareObj['graphPath'],
-        'fileName': fileName,
+        'plotUrl': compareObj['plotUrl'],
+        'fileName': compareObj['fileName'],
         'userText': compareObj['userText'],
         'sampleText': compareObj['sampleText'],
         })
