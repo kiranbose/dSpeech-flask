@@ -9,8 +9,8 @@ import bcrypt
 import numpy as np
 import soundfile
 from flask_cors import CORS, cross_origin
-from flask_socketio import SocketIO
-socketio = SocketIO(app)
+# from flask_socketio import SocketIO
+# socketio = SocketIO(app)
 
 # if (__name__ == "app.routes"):
 #     socketio.run(app)
@@ -130,19 +130,19 @@ def getMyUserAudioFiles():
     return retrieveData.retrieveMyRecordings(user['email'])
 
 
-@socketio.on('graph')
-def handle_graph(json):
-    print('received json: ' + str(json))
+# @socketio.on('graph')
+# def handle_graph(json):
+#     print('received json: ' + str(json))
 
 
-@socketio.on('clientConnected')
-def handle_connection(json):
-    print('received json: ' + str(json))
+# @socketio.on('clientConnected')
+# def handle_connection(json):
+#     print('received json: ' + str(json))
 
-@socketio.on('connect')
-def test_connect():
-    print('Client Connected')
+# @socketio.on('connect')
+# def test_connect():
+#     print('Client Connected')
 
-@socketio.on('disconnect')
-def test_disconnect():
-    print('Client disconnected')
+# @socketio.on('disconnect')
+# def test_disconnect():
+#     print('Client disconnected')
