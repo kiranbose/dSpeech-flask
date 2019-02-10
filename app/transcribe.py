@@ -52,6 +52,7 @@ def transcribe_file(fileName):
     monoFileName = uploader._safe_filename('mono.wav')
     print(monoFileName)
     print(AudioSegment)
+    break
     sound = AudioSegment.from_file('./' + fileName)
     print(sound)
     sound = sound.set_channels(1)
