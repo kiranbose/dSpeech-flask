@@ -50,11 +50,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./connection.json"
 def transcribe_file(fileName):
     """Convert given audio file to single channel."""
     monoFileName = uploader._safe_filename('mono.wav')
-    print(monoFileName)
-    print(AudioSegment)
-    break
     sound = AudioSegment.from_file('./' + fileName)
-    print(sound)
     sound = sound.set_channels(1)
     sound = sound.set_sample_width(2)
     duration_in_milliseconds = len(sound)
