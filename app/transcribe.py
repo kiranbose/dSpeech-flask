@@ -37,20 +37,23 @@ from app import threads, uploader
 
 # [END import_libraries]
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "https://00e9e64bac4ef41886e0c211906cd70165e83390a355500be4-apidata.googleusercontent.com/download/storage/v1/b/dspeech-deploy.appspot.com/o/dspeechRamesh-b2ddeb411159.json?qk=AD5uMEt7gV2O6PgynU16YElF_I09kZaUA1nU2MNF1sfYpKRrOkJs0_Gl8CvBTUA5j06H1kRKUjW4SE_3B0ZKPJKsI_xoVtEL3lnQga708tQi0YkkyuUqNd2noz4l7-Qb9U6Cv2ftSi-mrPfvJ81AjrzJXEhUk-0q_rsudYKPNbazYKwIkiw2UOf0aH0bCdi0hVB0zPsdPxIRMxaXS3B3VtJJ-Kf4NFuGBTy1bv1Iw9ZChIfZtMsbRC_MTpaoBteJbzQZLort9crsoa2GWMZBlXbaEUJxYHMcUhvN49mXYrjSLrSKLeSCoj3txUB32ihGqBiwXf0WSMP86Cp0n3YsMLnyTSvuFvaEhi-trypjIpZFYx5inGdcHihRy4_fFoAvjMD-KLU4rcjHJg-gG0PWaJui64ko9dHopB_jYH2JUW6iWaAFRZCIoR66WGLeyfcLMIq1xSaL5JjFgsqLGKMXlPa2m0sDHHnMmvu5Sla7xaWO6zibBOpOTk7N51_ETDVOsgTJcvAfNj-ZcRE-YhrcTHI0VOV2AiQoTwb3C-97Y_vk0QYNoOgy-Sm1s-wBzUhmPhz8BERIZKF-I_9lfzBY8dpZ3masn21wLf7m7h47O4lnCMQn8NQ4krLxKQEc35PWc5KXGonwrS06K81hVHqRWTNwTYDrq3eE6bNNLVvww1wXcdVBt-BSvKKk5_tgebV7Gnkq3Fmo_dGbLEE5Pm1al0Gx85eUvUVnemgKExoTt0E8Lw5cG8ZR9QWbR2SDcFhJpeU089-vQryKhxASKeQP6phqM3yjq2uO65pVzoK8b4qZERkdCNODTog"
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./dspeechRamesh-b2ddeb411159.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./connection.json"
 
-FFMPEG_PATH = os.path.abspath(os.path.join('./ffmpeg/bin/ffmpeg.exe'))
-FFPROBE = os.path.abspath(os.path.join('./ffmpeg/bin/ffprobe.exe'))
-AudioSegment.converter = FFMPEG_PATH
-AudioSegment.ffmpeg = FFMPEG_PATH
-AudioSegment.ffprobe = FFPROBE
+# FFMPEG_PATH = os.path.abspath(os.path.join('./ffmpeg/bin/ffmpeg.exe'))
+# FFPROBE = os.path.abspath(os.path.join('./ffmpeg/bin/ffprobe.exe'))
+# AudioSegment.converter = FFMPEG_PATH
+# AudioSegment.ffmpeg = FFMPEG_PATH
+# AudioSegment.ffprobe = FFPROBE
 
 
 # [START def_transcribe_file]
 def transcribe_file(fileName):
     """Convert given audio file to single channel."""
     monoFileName = uploader._safe_filename('mono.wav')
+    print(monoFileName)
+    print(AudioSegment)
     sound = AudioSegment.from_file('./' + fileName)
+    print(sound)
     sound = sound.set_channels(1)
     sound = sound.set_sample_width(2)
     duration_in_milliseconds = len(sound)
