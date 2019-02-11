@@ -64,23 +64,14 @@ def upload_file(file_stream, filename, content_type):
     if isinstance(url, six.binary_type):
         url = url.decode('utf-8')
 
-    if os.path.isfile(filename):
-        os.remove(filename)
-    else:    ## Show an error ##
-        print("Error: %s file not found" % filename)
+    t = Timer(20, deleteFromLocal, filename)
+    t.start()
 
     return url
 # [END upload_file]
 
 def deleteFromLocal(fileName):
-    #Timer(10.0, confirmDelete, (fileName))
     if os.path.isfile(fileName):
         os.remove(fileName)
     else:    ## Show an error ##
         print("Error: %s file not found" % fileName)
-
-# def confirmDelete(fileName):
-#     if os.name == 'posix':
-#         os.system('sudo rm ' + fileName)
-#     else:
-#         os.remove(fileName)
