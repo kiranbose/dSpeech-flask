@@ -37,6 +37,7 @@ def _safe_filename(filename):
     ``filename.ext`` is transformed into ``filename-YYYY-MM-DD-HHMMSS.ext``
     """
     filename = secure_filename(filename)
+    print("filename==", filename)
     date = datetime.datetime.utcnow().strftime("%Y-%m-%d-%H%M%S")
     basename, extension = filename.rsplit('.', 1)
     return "{0}-{1}.{2}".format(basename, date, extension)
