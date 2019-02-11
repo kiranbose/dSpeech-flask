@@ -1,4 +1,4 @@
-from app import app, routesHandler, transcribe, threads, auth
+from app import app, routesHandler, transcribe, threads, auth, uploader
 import os
 from flask import Flask, flash, request, redirect, url_for, abort, jsonify
 from werkzeug.utils import secure_filename
@@ -73,6 +73,7 @@ def pushToDatabase(fileName, email, userPermission):
     newCollectionId = routesHandler.recordingsCollection.insert_one(obj)
     newData = routesHandler.recordingsCollection.find_one(
         {'_id': newCollectionId.inserted_id})
+    uploader.deleteFile(fileName)
     return prepareResponse(newData)
 
 

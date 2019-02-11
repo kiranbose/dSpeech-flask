@@ -64,11 +64,14 @@ def upload_file(file_stream, filename, content_type):
     if isinstance(url, six.binary_type):
         url = url.decode('utf-8')
 
-    t = Timer(20, deleteFromLocal, [filename])
-    t.start()
+    deleteFile(filename)
 
     return url
 # [END upload_file]
+
+def deleteFile(fileName):
+    t = Timer(20, deleteFromLocal, [fileName])
+    t.start()
 
 def deleteFromLocal(fileName):
     if os.path.isfile(fileName):
