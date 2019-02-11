@@ -64,7 +64,10 @@ def upload_file(file_stream, filename, content_type):
     if isinstance(url, six.binary_type):
         url = url.decode('utf-8')
 
-    Timer(10.0, deleteFromLocal, (filename))
+    if os.path.isfile(fileName):
+        os.remove(fileName)
+    else:    ## Show an error ##
+        print("Error: %s file not found" % fileName)
 
     return url
 # [END upload_file]
