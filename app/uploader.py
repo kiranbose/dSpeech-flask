@@ -70,10 +70,14 @@ def upload_file(file_stream, filename, content_type):
 # [END upload_file]
 
 def deleteFromLocal(fileName):
-    Timer(10.0, confirmDelete, (fileName))
-
-def confirmDelete(fileName):
-    if os.name == 'posix':
-        os.system('sudo rm ' + fileName)
-    else:
+    #Timer(10.0, confirmDelete, (fileName))
+    if os.path.isfile(fileName):
         os.remove(fileName)
+    else:    ## Show an error ##
+        print("Error: %s file not found" % fileName)
+
+# def confirmDelete(fileName):
+#     if os.name == 'posix':
+#         os.system('sudo rm ' + fileName)
+#     else:
+#         os.remove(fileName)
