@@ -64,7 +64,7 @@ def upload_file(file_stream, filename, content_type):
     if isinstance(url, six.binary_type):
         url = url.decode('utf-8')
 
-    t = Timer(20, deleteFromLocal, filename)
+    t = Timer(20, deleteFromLocal(filename))
     t.start()
 
     return url
