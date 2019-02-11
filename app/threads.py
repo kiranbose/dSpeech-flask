@@ -64,7 +64,7 @@ class GraphPlotterThread(Thread):
         with io.open(path, 'rb') as plot_file:
             content = plot_file.read()
             plotUrl = uploader.upload_file(content, path, 'image/png')
-            uploader.deleteFromLocal('./' + path)
+            uploader.deleteFile('./' + path)
 
 
         # plt.show()
