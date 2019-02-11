@@ -125,8 +125,8 @@ class CompareGraphGenerator(Thread):
         with io.open('./' + self.targetFileName, 'rb') as audio_file:
             content = audio_file.read()
             uploader.upload_file(content, self.targetFileName, 'image/png')
-            uploader.deleteFromLocal('./' + self.targetFileName)
+            uploader.deleteFile('./' + self.targetFileName)
             
-        uploader.deleteFromLocal('./' + self.fileName1)
-        uploader.deleteFromLocal('./' + self.fileName2)
+        uploader.deleteFile('./' + self.fileName1)
+        uploader.deleteFile('./' + self.fileName2)
         # plt.show()
