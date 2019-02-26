@@ -112,7 +112,7 @@ def getMetaData():
         if (obj['permission'] == 'administrator'):
             sRecords.append(obj)
 
-    latestComparison = routesHandler.comparisonCollection.find({'user.email': user.email})
+    latestComparison = routesHandler.comparisonCollection.find({'user.email': user['email']})
     metaData = {
         'userRecordings': uRecords,
         'sampleRecordings': sRecords,
