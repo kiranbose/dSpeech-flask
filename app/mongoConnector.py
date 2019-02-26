@@ -18,7 +18,7 @@ def prepareResponse(data):
 
 
 def retrieve(email):
-    data = routesHandler.recordingsCollection.find()
+    data = routesHandler.recordingsCollection.find({'user.email': email})
     if routesHandler.recordingsCollection.count() == 0:
         data = []
     return prepareResponse(data)
